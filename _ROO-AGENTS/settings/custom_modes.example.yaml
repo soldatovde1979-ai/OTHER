@@ -1,0 +1,25 @@
+# Шаблон ГЛОБАЛЬНЫХ кастомных режимов.
+# Куда класть: %APPDATA%\Code\User\globalStorage\zoocodeorganization.zoo-code\settings\custom_modes.yaml
+# (реальный путь этой машины: C:\Users\de.soldatov\AppData\Roaming\Code\User\globalStorage\
+#  zoocodeorganization.zoo-code\settings\custom_modes.yaml). Текущее состояние — customModes: [] (пусто).
+# Управлять также можно через UI: Settings → Modes → Custom modes.
+# Формат идентичен .roomodes проекта; при одинаковом slug проектный режим приоритетнее.
+
+customModes: []
+
+# Раскомментируйте и наполните примерами:
+#
+# customModes:
+#   - slug: tech-writer
+#     name: "📝 Tech Writer"
+#     description: "Пишет и правит документацию"
+#     roleDefinition: "Ты — технический писатель. Пишешь ясно, структурно, на русском."
+#     whenToUse: "Подготовка README, справок, описаний к релизам."
+#     groups:
+#       - read
+#       - edit
+#       - mcp
+#     customInstructions: |
+#       1. Не менять код — только документы (.md).
+#       2. Перед правкой читать целевой файл.
+#       3. В конце — краткое резюме изменений.
