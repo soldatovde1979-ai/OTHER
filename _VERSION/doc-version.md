@@ -73,8 +73,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File install\install.ps1 -Bump mi
 | Где | Что видно |
 |---|---|
 | Артефакт (настройки, подвал отчёта, файл версии) | `BUILD/VERSION`, `BUILD/DATE`, `BUILD/SRC_MD5` |
-| `install\VERSION` | версия исходников (первая строка) и описание |
-| `CHANGELOG.md` | что менялось от версии к версии |
+| `install\VERSION` | версия исходников (первая строка) и человеческое описание изменений |
+| `CHANGELOG.md` | что менялось от версии к версии: сначала описание, затем техника |
 
 `BUILD/SRC_MD5` отвечает на вопрос «артефакт совпадает с исходниками или
 разошёлся»: если после правки исходников хеш в артефакте прежний — правку в
@@ -84,7 +84,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File install\install.ps1 -Bump mi
 
 | Файл | Назначение | Правится руками |
 |---|---|---|
-| `install\VERSION` | первая строка — версия, дальше описание | нет, ведёт install.ps1 |
+| `install\VERSION` | первая строка — версия, дальше описание | версия — нет (ведёт install.ps1); описание — да, руками до релиза |
 | `install\release.state` | хеши исходников прошлого релиза | **никогда** |
 | `CHANGELOG.md` | накопительный журнал версий | нет, ведёт install.ps1 |
 | `install\migrations\*.ps1` | дополнительный код версии | да, при необходимости |
@@ -97,6 +97,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File install\install.ps1 -Bump mi
 | `RELEASE_SOURCES_SAME` | исходники не менялись, версия не поднимается — это нормально |
 | `RELEASE_FAIL` | релиз прерван; версия, журнал и состояние не тронуты |
 | `ARTIFACT_ERROR` | сборка прошла, но версию в артефакт записать не удалось |
+| `DESC_EMPTY` | описание в install\VERSION не заполнено — запись в CHANGELOG пойдёт с плейсхолдером |
 | `MIG_SKIP` | миграция старше версии артефакта, применять нечего |
 | `RELEASE_OK <версия>` | всё прошло, в артефакте записана новая версия |
 

@@ -84,9 +84,10 @@ function Read-VersionDescription() {
     $out = @()
     foreach ($l in $lines) {
         if (-not $seen) { if ($l.Trim() -ne "") { $seen = $true }; continue }
+        if ($l.Trim() -eq "") { continue }
         $out += $l
     }
-    return ($out -join " ").Trim()
+    return $out
 }
 
 # SemVer: МАЖОР.МИНОР.ПАТЧ.
@@ -228,6 +229,15 @@ if ($state.Digest -eq "") {
     Write-Marker "RELEASE_SOURCES_SAME" "исходники не менялись, версия остаётся прежней"
 }
 
+# Человеческое описание для CHANGELOG: заполняется руками в install\VERSION ниже
+# первой строки ДО релиза. Читаем до записи VERSION (запись сбрасывает описание).
+$desc = @(Read-VersionDescription)
+if ($desc.Count -gt 0) {
+    Write-Marker "DESC_FOUND" ($desc.Count + " - описание для CHANGELOG прочитано из install\VERSION")
+} else {
+    Write-Marker "DESC_EMPTY" "описание не заполнено - впишите его в install\VERSION ниже первой строки до релиза"
+}
+
 if (-not (Test-Path $fullTarget)) {
     Write-Marker "TARGET_NOT_FOUND" ($fullTarget + " - цель сейчас не существует; если сборка создаёт её заново, это нормально")
 }
@@ -295,13 +305,15 @@ try {
 
 # ---------------------------------------------------------------- VERSION, state, CHANGELOG
 if ($newVersion -ne $curVersion) {
-    $desc = Read-VersionDescription
+    # Описание ушло в CHANGELOG этой записи; VERSION сбрасывается под описание
+    # следующей версии, чтобы старое описание не продублировалось в след. релизе.
     $lines = @()
     $lines += $newVersion
-    $lines += ("Собрано " + (Get-Date -Format "dd.MM.yyyy") + ". Изменены: " + ($changedFiles -join ", "))
     $lines += ""
-    $lines += "Первая строка этого файла - версия сборки, всё ниже - описание."
-    $lines += "Версию меняет install.ps1, руками править не нужно."
+    $lines += "Первая строка этого файла - версия сборки, её ведёт install.ps1."
+    $lines += "Ниже, до следующего релиза, впишите человеческое описание изменений:"
+    $lines += "  что добавлено; какая ошибка исправлена; что и с каким результатом оптимизировано."
+    $lines += "Оно попадёт в CHANGELOG.md первым абзацем записи новой версии."
     [IO.File]::WriteAllLines($versionFile, $lines, (New-Object System.Text.UTF8Encoding($false)))
     Write-Marker "VERSION_WRITTEN" $newVersion
 }
@@ -312,6 +324,14 @@ Write-Marker "STATE_WRITTEN" "release.state"
 $entry = @()
 $entry += ("## " + $newVersion + " " + [char]0x2014 + " " + (Get-Date -Format "dd.MM.yyyy"))
 $entry += ""
+# Сначала человеческое описание (из install\VERSION), техника - строго после.
+if ($desc.Count -gt 0) {
+    $entry += $desc
+    $entry += ""
+} else {
+    $entry += "- Описание изменений не заполнено: впишите его в install\VERSION ниже первой строки до релиза"
+    $entry += ""
+}
 if ($changedFiles.Count -gt 0) { $entry += ("- Изменены исходники: " + ($changedFiles -join ", ")) }
 else { $entry += "- Исходники не менялись, переустановка в артефакт" }
 if ($applied.Count -gt 0) { $entry += ("- Миграции: " + ($applied -join ", ")) }
@@ -327,7 +347,7 @@ if (Test-Path $changelog) {
     elseif ($idx -eq 0) { $new = ($entry + $old) }
     else { $new = ($old[0..($idx - 1)] + $entry + $old[$idx..($old.Count - 1)]) }
 } else {
-    $head = @("# Журнал версий " + $ProjectName, "", "Формат: Keep a Changelog, новая запись сверху. Файл ведёт install.ps1.", "")
+    $head = @("# Журнал версий " + $ProjectName, "", "Формат: человеческое описание изменений, затем техническая часть; новая запись сверху. Файл ведёт install.ps1.", "")
     $new = $head + $entry
 }
 [IO.File]::WriteAllLines($changelog, $new, (New-Object System.Text.UTF8Encoding($false)))

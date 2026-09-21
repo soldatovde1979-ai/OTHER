@@ -1,0 +1,5 @@
+# Эталон глобальных кастомных режимов zoo-code.
+# Редактировать здесь, затем синхронизировать (/c zoo) и раскладка:
+# %APPDATA%\Code\User\globalStorage\zoocodeorganization.zoo-code\settings\custom_modes.yaml
+
+customModes: []
